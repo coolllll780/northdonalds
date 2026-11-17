@@ -2,11 +2,42 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Serve at NorthDonalds</title>
 <style>
 :root{--red:#b52d35;--cream:#f5e7c5;--gold:#f4c85c;--ink:#201c20;--panel:#302a30}*{box-sizing:border-box}body{margin:0;background:#171519;color:var(--cream);font:14px ui-monospace,Consolas,monospace}header{background:var(--red);padding:12px 18px;border-bottom:5px solid #701c24;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.logo{font-size:clamp(19px,3vw,29px);font-weight:1000;letter-spacing:2px;text-shadow:3px 3px #64151c}.logo small{display:block;font-size:9px;letter-spacing:3px;color:#ffe2a0}.stats{display:flex;gap:8px;flex-wrap:wrap}.stats span{background:#701c24;padding:8px 10px;border:1px solid #e88d79}.wrap{max-width:1250px;margin:auto;padding:14px}.game{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:12px}.screen{background:#242126;border:3px solid #65545a;padding:8px;box-shadow:5px 5px #080709;min-width:0}canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:#6a6b54;border:2px solid #151319}.hint{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#c9bda5;font-size:12px;padding:8px 2px 0}.side{display:flex;flex-direction:column;gap:10px}.panel{background:var(--panel);border:2px solid #66565b;padding:12px}.panel h2{margin:0 0 9px;color:var(--gold);font-size:15px;border-bottom:1px solid #695b53;padding-bottom:7px}.ticket{background:#eee0b9;color:#28211e;padding:9px;margin:7px 0;border:2px dashed #917b57}.ticket b{display:block}.small{font-size:11px;color:#c7bba6;line-height:1.6}.ticket .small{color:#594c3d}.bar{height:8px;background:#17151a;margin-top:5px}.bar i{display:block;height:100%;background:#76b77c}.btns{display:flex;gap:6px;flex-wrap:wrap}button{border:0;background:var(--gold);color:#211b1b;padding:8px 10px;font: bold 12px ui-monospace,monospace;cursor:pointer;box-shadow:3px 3px #0e0c10}button:hover{filter:brightness(1.1);transform:translateY(-1px)}button:disabled{opacity:.35;cursor:not-allowed}.action{width:100%;margin:3px 0;text-align:left}.inventory{display:grid;grid-template-columns:1fr 1fr;gap:4px}.inv{background:#211e23;padding:5px 7px;font-size:11px;display:flex;justify-content:space-between}.log{height:85px;overflow:auto;background:#1b191e;padding:7px;font-size:11px;line-height:1.5;color:#d5c7a9}.modal{position:fixed;inset:0;background:#08070bea;display:grid;place-items:center;padding:18px;z-index:5}.box{max-width:570px;background:#302a30;border:4px solid var(--gold);padding:25px;text-align:center;box-shadow:9px 9px #000}.box h1{font-size:clamp(28px,6vw,48px);color:var(--gold);margin:12px}.box p{line-height:1.7}.hidden{display:none!important}.stationActions{display:grid;grid-template-columns:1fr 1fr;gap:5px}.stationActions button{width:100%}.assembly{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.chip{background:#f4dfad;color:#35291d;padding:5px 7px;font-size:11px;border:1px solid #9d783e}.foot{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:12px;color:#b9ad99;font-size:11px}@media(max-width:800px){.game{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}}@media(max-width:520px){.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.wrap{padding:7px}.hint{font-size:10px}}
+
+/* POLISHED GAME UI */
+body{background:radial-gradient(ellipse at top,#393039 0,#171519 65%);background-attachment:fixed}
+header{position:sticky;top:0;z-index:3;background:linear-gradient(110deg,#c43c43,#8f202b 75%);box-shadow:0 5px 20px #0008}
+.logo{letter-spacing:2.5px}.stats span{border-radius:5px;box-shadow:inset 0 1px #ffffff22,0 3px #40151b;font-size:12px}
+.wrap{max-width:1500px;padding:18px}.game{grid-template-columns:minmax(0,1fr) 330px;gap:16px}
+.screen{background:linear-gradient(145deg,#40363c,#211e24);border:2px solid #76616a;border-radius:10px;padding:10px;box-shadow:0 12px 30px #0008}
+canvas{border:2px solid #171319;border-radius:5px;box-shadow:inset 0 0 0 3px #ffffff16;touch-action:none}
+.hint{background:#17151a;border-radius:0 0 5px 5px;padding:10px 8px;color:#ead9b6}
+.side{gap:12px}.panel{border:1px solid #6a5961;border-radius:8px;background:linear-gradient(145deg,#393139,#28242a);box-shadow:0 5px 13px #0005;padding:14px}
+.panel h2{font-size:14px;letter-spacing:1px;color:#ffda7d}
+.ticket{border:1px solid #b9a477;border-left:5px solid #b52d35;border-radius:5px;box-shadow:0 3px 7px #0003;transition:transform .15s}
+.ticket:first-child{border-left-color:#65ad70}.ticket b{font-size:12px;margin-bottom:4px}
+.bar{border-radius:8px;overflow:hidden}.bar i{transition:width .3s}
+button{border-radius:4px;transition:filter .12s,transform .12s,box-shadow .12s;box-shadow:0 3px #9b7536}
+button:active{transform:translateY(2px);box-shadow:0 1px #9b7536}
+.action{border:1px solid #d5a943;background:linear-gradient(#ffe18b,#eab94c);padding:10px}
+.action:before{content:"▶ ";font-size:9px}
+.inv{border-radius:3px;border:1px solid #ffffff0d}.chip{border-radius:3px;box-shadow:0 2px #8c6a38}
+.log{border:1px solid #4d4147;border-radius:4px}
+.foot{padding:8px 2px}.box{border-radius:10px;background:linear-gradient(145deg,#40343c,#242027);border-radius:8px}
+#objective{background:linear-gradient(90deg,#4b3522,#30252a);border:1px solid #967044;border-radius:6px;padding:9px 12px;margin-bottom:12px;color:#ffe5a1;font-size:12px;box-shadow:0 4px 12px #0004}
+#objective b{color:#fff2c9}
+#touchControls{display:none;justify-content:space-between;align-items:center;padding:10px 4px 2px;gap:12px}
+.dpad{display:grid;grid-template-columns:42px 42px 42px;grid-template-rows:38px 38px 38px;gap:3px}
+.dpad button{padding:0;font-size:17px;touch-action:none}.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
+.touchE{min-width:94px;min-height:78px;font-size:17px}
+.stationActions{grid-template-columns:1fr 1fr}.stationActions button{font-size:11px;min-height:38px}
+#trayActions button{font-size:10px;padding:7px 8px}
+@media(max-width:800px){.game{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}#touchControls{display:flex}}
+@media(max-width:520px){.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.wrap{padding:7px}.stats span{padding:6px 7px}.logo small{font-size:8px}.panel{padding:11px}}
 </style></head><body>
 <header><div class="logo">SERVE AT NORTHDONALDS<small>THE PEOPLE'S BURGER SERVICE • EST. 1969-ISH</small></div><div class="stats"><span>₩ <b id="cash">100</b></span><span>⭐ <b id="rep">0</b></span><span>DAY <b id="day">1</b></span><span>⏱ <b id="clock">03:00</b></span></div></header>
-<div class="wrap"><div class="game"><section class="screen"><canvas id="world" width="960" height="560"></canvas><div class="hint"><span>WASD / ARROWS = MOVE</span><span>E = USE NEARBY STATION</span><span>ESC = CLOSE STATION</span></div></section><aside class="side">
+<div class="wrap"><div id="objective">⭐ <b>FIRST SHIFT:</b> Walk to the prep bench, make the ingredients on the order, assemble the burger, then serve it at the window.</div><div class="game"><section class="screen"><canvas id="world" width="960" height="560"></canvas><div class="hint"><span>⌨ WASD / ARROWS MOVE</span><span>🟡 E OR CLICK A STATION</span><span>ESC CLOSES MENU</span></div><div id="touchControls"><div class="dpad"><button class="up" data-key="w">▲</button><button class="left" data-key="a">◀</button><button class="down" data-key="s">▼</button><button class="right" data-key="d">▶</button></div><button class="touchE" id="touchE">USE<br>STATION</button></div></section><aside class="side">
 <div class="panel"><h2>📋 CUSTOMER QUEUE</h2><div id="queue"></div><div class="small">Serve customers at the front window before their patience runs out.</div></div>
-<div class="panel"><h2 id="stationTitle">🧑‍🍳 KITCHEN ACTIONS</h2><div id="stationText" class="small">Walk up to a station and press E. Prep ingredients one at a time, cook patties and fry fries.</div><div id="actions" class="stationActions"></div></div>
+<div class="panel"><h2 id="stationTitle">🧭 WHAT TO DO</h2><div id="stationText" class="small">Walk up to a station and press E. Prep ingredients one at a time, cook patties and fry fries.</div><div id="actions" class="stationActions"></div></div>
 <div class="panel"><h2>🍔 CURRENT TRAY</h2><div id="tray" class="assembly"><span class="small">Nothing assembled yet.</span></div><div id="trayActions" class="btns"></div></div>
 <div class="panel"><h2>📦 INVENTORY</h2><div class="inventory" id="inventory"></div></div>
 <div class="panel wide"><h2>📻 SHIFT RADIO</h2><div id="log" class="log">Welcome, employee. Move around the kitchen. Your first customers are arriving.</div></div>
@@ -28,7 +59,7 @@ function order(){let req={bun:1,patty:1};let pool=['lettuce','cheese','tomato','
 function desc(r){return Object.entries(r).filter(x=>x[1]).map(([k,v])=>v+' × '+names[k]).join(', ')}
 function addOrder(){if(orders.length<4)orders.push(order());drawUI()}
 function nearest(){let best=null,d=1e9;for(let s of stations){let x=s.x+s.w/2,y=s.y+s.h/2,dd=Math.hypot(player.x-x,player.y-y);if(dd<d){best=s;d=dd}}return d<83?best:null}
-function openStation(s){active=s.id;drawUI()}
+function openStation(s){active=s.id;drawUI();say(s.name+' station opened')}
 function closeStation(){active='';drawUI()}
 function act(k){if(k==='patty'||k==='fries'){if(stock[k]>=15){say('Storage is full!');return}let btn=$('act-'+k);if(btn)btn.disabled=true;say(k==='patty'?'Patty cooking…':'Fries frying…');log(k==='patty'?'Patty on the grill.':'Fries in the fryer.');setTimeout(()=>{stock[k]++;say('Ready: '+names[k]);beep(720);drawUI()},k==='patty'?3600:4600);return}stock[k]=(stock[k]||0)+1;log('Prepared '+names[k]+'.');beep(560);drawUI()}
 function drawUI(){
@@ -55,32 +86,72 @@ function serve(){let o=orders[0];if(!o){say('There is nobody to serve!');return}
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
 function text(t,x,y,size=14,color='#fff'){ctx.fillStyle=color;ctx.font='bold '+size+'px monospace';ctx.fillText(t,x,y)}
 function draw(){
-ctx.clearRect(0,0,960,560);rect(0,0,960,560,'#77765b');
-for(let y=0;y<560;y+=32)for(let x=0;x<960;x+=32){rect(x,y,30,30,((x/32+y/32)%2)?'#77765b':'#808064')}
-rect(20,20,920,520,'#b5a77f');rect(32,32,896,496,'#b9ad88');
-for(let x=40;x<930;x+=48){rect(x,38,34,8,'#a89b78');rect(x,514,34,8,'#a89b78')}
-rect(370,35,220,45,'#51494a');text('NORTHDONALDS KITCHEN',385,63,17,'#f4d27b');
-for(let s of stations){rect(s.x+5,s.y+6,s.w,s.h,'#55453c');rect(s.x,s.y,s.w,s.h,s.id==='window'?'#9d4741':s.id==='grill'?'#484b50':s.id==='fryer'?'#b07839':s.id==='assembly'?'#a77a43':'#6c7652');rect(s.x+5,s.y+5,s.w-10,13,'#d1bd8d');text(s.name,s.x+9,s.y+32,Math.min(13,s.w/10),'#fff1ca');
-if(s.id==='grill'){for(let i=0;i<4;i++){rect(s.x+18+i*34,s.y+47,24,22,'#29272a');rect(s.x+21+i*34,s.y+50,18,16,'#b65e39')}}
-if(s.id==='fryer'){rect(s.x+20,s.y+45,45,28,'#332b26');rect(s.x+80,s.y+45,45,28,'#e5b34d')}
-if(s.id==='prep'){for(let i=0;i<4;i++)rect(s.x+16+i*37,s.y+47,25,20,['#66a34d','#f1cb4d','#d64c3f','#d4a75d'][i])}
-if(s.id==='assembly'){rect(s.x+18,s.y+48,s.w-36,23,'#e4c17d');}
-if(s.id==='window'){rect(s.x+12,s.y+48,s.w-24,21,'#332d31');}
+ctx.clearRect(0,0,960,560);
+const tile=32;
+for(let y=0;y<560;y+=tile)for(let x=0;x<960;x+=tile){
+rect(x,y,32,32,((x/tile+y/tile)%2)?'#8d896e':'#969174');
+ctx.strokeStyle='#a9a184';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,31,31);
 }
-rect(30,255,900,5,'#a39470');rect(30,262,900,3,'#8c8064');
-for(let i=0;i<orders.length;i++){let x=100+i*62,y=480;rect(x,y,28,30,'#bd8b63');rect(x+4,y-12,20,18,'#e6b98d');rect(x+7,y-7,4,4,'#211b1b');rect(x+17,y-7,4,4,'#211b1b');rect(x+7,y+18,14,4,'#6e3333');}
-let near=nearest();if(near){ctx.strokeStyle='#ffe16b';ctx.lineWidth=3;ctx.strokeRect(near.x-3,near.y-3,near.w+6,near.h+6);text('E: USE '+near.name,player.x-65,player.y-38,13,'#fff4a9')}
-let px=player.x,py=player.y;rect(px-12,py-11,24,27,'#293b68');rect(px-10,py-25,20,18,'#e3b48d');rect(px-10,py-28,20,8,'#302323');rect(px-7,py-18,4,4,'#171313');rect(px+3,py-18,4,4,'#171313');rect(px-10,py+14,8,9,'#25202a');rect(px+2,py+14,8,9,'#25202a');
-if(toast&&performance.now()<toastUntil){rect(250,490,460,34,'#242026');text(toast,265,512,14,'#ffe18b')}
-requestAnimationFrame(draw)
+ // walls and skirting
+rect(0,0,960,25,'#51434a');rect(0,25,960,8,'#30272d');rect(0,535,960,25,'#51434a');
+for(let x=12;x<950;x+=48){rect(x,6,28,8,'#77616a');rect(x,542,28,8,'#77616a')}
+ // back wall decor
+rect(365,38,230,48,'#332b32');rect(371,43,218,38,'#b52d35');text('NORTHDONALDS',391,69,22,'#fff0c2');
+rect(42,52,180,66,'#5c4945');rect(48,58,168,54,'#9ed0d1');for(let x=52;x<212;x+=32){rect(x,58,4,54,'#e9d6a5')}rect(126,58,5,54,'#e9d6a5');
+rect(730,48,178,68,'#554149');rect(737,55,164,54,'#f0d38c');text('HOT & FRESH',758,78,16,'#7b3030');text('ALWAYS',785,98,13,'#7b3030');
+ // floor mats and route
+rect(300,238,355,80,'#77715f');for(let x=310;x<650;x+=20)rect(x,245,10,66,'#827b68');
+ // decorative plants and bins
+rect(38,444,38,40,'#65452f');rect(43,420,28,30,'#3c774a');rect(49,408,16,18,'#57945b');
+rect(880,445,42,40,'#47515a');rect(886,436,30,10,'#252a30');text('BIN',888,470,10,'#e8d7b6');
+ // counters with detailed stations
+for(const st of stations){
+ const activeNear=nearest()&&nearest().id===st.id;
+ ctx.fillStyle='#0005';ctx.fillRect(st.x+7,st.y+9,st.w,st.h);
+ const base=st.id==='window'?'#8e3b3d':st.id==='grill'?'#444c54':st.id==='fryer'?'#a66a36':st.id==='assembly'?'#a77743':st.id==='sauce'?'#54734c':'#627a51';
+ rect(st.x,st.y,st.w,st.h,base);rect(st.x+4,st.y+4,st.w-8,st.h-8,'#c4ad7c');rect(st.x+7,st.y+7,st.w-14,st.h-14,base);
+ rect(st.x+5,st.y+5,st.w-10,17,'#e4d2a3');text(st.name,st.x+10,st.y+18,Math.min(13,st.w/10),'#43332e');
+ if(st.id==='prep'){
+  const cc=['#6db34f','#efcf42','#d64c3f','#d9a95d','#4d9a51'];
+  for(let i=0;i<5;i++){rect(st.x+13+i*30,st.y+38,23,23,'#57463c');rect(st.x+16+i*30,st.y+41,17,17,cc[i]);}
+  rect(st.x+13,st.y+65,st.w-26,5,'#dfd0a8');
+ }
+ if(st.id==='grill'){
+  rect(st.x+13,st.y+34,st.w-26,35,'#27292d');for(let i=0;i<5;i++){rect(st.x+19+i*27,st.y+39,20,25,'#565a5b');rect(st.x+22+i*27,st.y+43,14,17,'#a75b3d');}
+  rect(st.x+14,st.y+70,st.w-28,5,'#d7c18e');
+ }
+ if(st.id==='fryer'){
+  for(let i=0;i<2;i++){rect(st.x+15+i*65,st.y+37,54,34,'#393033');rect(st.x+20+i*65,st.y+42,44,23,'#d49b3f');for(let q=0;q<4;q++)rect(st.x+25+i*65+q*8,st.y+38,3,8,'#f6d16a');}
+ }
+ if(st.id==='sauce'){for(let i=0;i<4;i++){rect(st.x+12+i*31,st.y+38,20,28,['#b83732','#e4c33f','#eee1c4','#84523f'][i]);rect(st.x+17+i*31,st.y+33,10,6,'#e4d5b0')}}
+ if(st.id==='assembly'){rect(st.x+13,st.y+38,st.w-26,33,'#e7c783');rect(st.x+20,st.y+44,st.w-40,5,'#f6e3ae');rect(st.x+20,st.y+57,st.w-40,7,'#b87937')}
+ if(st.id==='window'){rect(st.x+12,st.y+37,st.w-24,33,'#29242a');rect(st.x+18,st.y+42,st.w-36,22,'#c6a66d');rect(st.x+23,st.y+47,st.w-46,12,'#e8d5a7')}
+ if(activeNear){ctx.strokeStyle='#ffe36f';ctx.lineWidth=4;ctx.strokeRect(st.x-3,st.y-3,st.w+6,st.h+6)}
 }
-function tick(now){let dt=Math.min((now-last)/16.67,2);last=now;if(started&&!modal){let dx=(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),dy=(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0);if(dx||dy){let n=Math.hypot(dx,dy);player.x+=dx/n*player.speed*dt;player.y+=dy/n*player.speed*dt;player.x=Math.max(55,Math.min(905,player.x));player.y=Math.max(110,Math.min(495,player.y))}}requestAnimationFrame(tick)}
+ // customer queue outside serving hatch
+for(let i=0;i<orders.length;i++){
+ let x=110+i*64,y=485;rect(x-2,y+17,31,8,'#57453b');rect(x+3,y-3,22,26,['#b64f47','#476d92','#7c9b50','#a17b9d'][i%4]);rect(x+5,y-21,18,19,['#e4b68e','#d4a27e','#efc9a2'][i%3]);rect(x+7,y-15,4,4,'#272026');rect(x+17,y-15,4,4,'#272026');rect(x+8,y-6,10,3,'#7e3937');
+}
+ // player shadow and animated legs
+let px=player.x,py=player.y,walk=(keys.w||keys.a||keys.s||keys.d||keys.arrowup||keys.arrowdown||keys.arrowleft||keys.arrowright);
+ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(px,py+20,17,7,0,0,Math.PI*2);ctx.fill();
+rect(px-12,py-9,24,27,'#263f75');rect(px-10,py-7,20,19,'#4169a5');rect(px-11,py-23,22,19,'#e5b58d');rect(px-12,py-28,24,9,'#30252a');rect(px-9,py-31,18,5,'#a32e35');rect(px-7,py-17,4,4,'#201a1c');rect(px+3,py-17,4,4,'#201a1c');rect(px-5,py-1,10,17,'#f0d7a8');rect(px-11,py+15,9,8,'#28232b');rect(px+2,py+15,9,8,'#28232b');rect(px-9,py+2,18,4,'#f0d7a8');
+ // speech prompt over nearest station
+let near=nearest();if(near&&started){rect(px-92,py-61,184,24,'#29222a');text('E  /  CLICK TO USE',px-83,py-44,12,'#ffe28b');}
+if(toast&&performance.now()<toastUntil){rect(210,500,540,35,'#29222a');ctx.strokeStyle='#e7bf65';ctx.strokeRect(210,500,540,35);text(toast,225,523,14,'#ffe28b')}
+}
+function tick(now){let dt=Math.min((now-last)/16.67,2);last=now;if(started&&!modal){let dx=(keys.arrowright||keys.d?1:0)-(keys.arrowleft||keys.a?1:0),dy=(keys.arrowdown||keys.s?1:0)-(keys.arrowup||keys.w?1:0);if(dx||dy){let n=Math.hypot(dx,dy);player.x+=dx/n*player.speed*dt;player.y+=dy/n*player.speed*dt;player.x=Math.max(55,Math.min(905,player.x));player.y=Math.max(110,Math.min(495,player.y))}}requestAnimationFrame(tick)}
 function endShift(){started=false;modal=true;$('endText').textContent='Day '+day+' complete. Orders served: '+served+'. Perfect orders: '+perfect+'. Customers lost: '+lost+'. You earned ₩'+cash+'.';$('end').classList.remove('hidden')}
 document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(k==='e'&&started&&!modal){let s=nearest();if(s)openStation(s);else say('Move closer to a station first!')}if(k==='escape'&&active)closeStation()});
 document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 $('begin').onclick=()=>{$('start').classList.add('hidden');started=true;modal=false;orders=[order(),order(),order()];drawUI();log('Clocked in. First orders are waiting!')};
 $('nextDay').onclick=()=>{$('end').classList.add('hidden');day++;time=180;cash+=35;orders=[order(),order()];modal=false;started=true;log('New day! ₩35 shift bonus.');drawUI()};
 $('restart').onclick=()=>{started=false;modal=true;day=1;time=180;cash=100;rep=served=lost=perfect=0;orders=[];selected=null;active='';player={x:490,y:270,speed:3.1};fresh();$('end').classList.add('hidden');$('start').classList.remove('hidden');drawUI()};
+
+// Canvas stations are clickable too — no need to guess the interaction.
+c.addEventListener('click',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*c.width/r.width,y=(e.clientY-r.top)*c.height/r.height;for(const st of stations){if(x>=st.x-8&&x<=st.x+st.w+8&&y>=st.y-8&&y<=st.y+st.h+8){openStation(st);return}}});
+$('touchE').onclick=()=>{let st=nearest();if(st)openStation(st);else say('Walk closer to a station first!')};
+document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;const down=e=>{e.preventDefault();keys[k]=true},up=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)});
 fresh();drawUI();requestAnimationFrame(draw);requestAnimationFrame(tick);setInterval(()=>{if(!started||modal)return;time--;orders.forEach(o=>o.patience-=.85);let n=orders.filter(o=>o.patience<=0).length;if(n){lost+=n;rep-=2*n;orders=orders.filter(o=>o.patience>0);log(n+' customer(s) left.');say('CUSTOMER WALKOUT!')}if(orders.length<4&&Math.random()<.35)orders.push(order());drawUI();if(time<=0)endShift()},1000);
 })();
 </script></body></html>
