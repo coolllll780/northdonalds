@@ -85,7 +85,7 @@ document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{let k=b.datase
 document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{let k=b.dataset.sub;if(tray[k]>0){tray[k]--;stock[k]++;drawUI()}});
 if($('clearTray'))$('clearTray').onclick=()=>{for(let[k,v]of Object.entries(tray))stock[k]=(stock[k]||0)+v;tray={};drawUI()};
 let s=stations.find(x=>x.id===active);$('stationTitle').textContent=s?'🛠 '+s.name:'🧑‍🍳 KITCHEN ACTIONS';$('stationText').textContent=s?s.desc+' — press a button below.':'Walk close to a station and press E. Nearby station names appear above your character.';
-let html='';if(active==='prep')html=['bun','lettuce','cheese','tomato','pickle','onion','bacon','egg'].map(k=>'<button class="action" data-make="'+k+'">Prepare '+names[k]+'</button>').join('');
+let html='';if(active==='prep')html=['bun','patty','lettuce','cheese','tomato','pickle','onion','bacon','egg'].map(k=>'<button class="action" data-make="'+k+'">Prepare '+names[k]+'</button>').join('');
 if(active==='grill')html='<div id="grillGame"><canvas id="grillCanvas" width="300" height="112"></canvas><div id="grillStatus">Put a raw patty on the hotplate. Watch the colour and flip it when ready.</div><div class="btns"><button id="putPatty">PUT PATTY ON GRILL</button><button id="flipPatty" disabled>FLIP PATTY</button><button id="collectPatty" disabled>COLLECT PATTY</button></div></div>';
 if(active==='fryer')html='<button class="action" id="act-fries">🍟 Fry 1 portion (4.6s)</button>';
 if(active==='sauce')html=['ketchup','mustard','mayo','secret'].map(k=>'<button class="action" data-make="'+k+'">Portion '+names[k]+'</button>').join('');
@@ -195,7 +195,7 @@ function setupBurgerBuilder(){
   $('layerCount').textContent='Layers: '+layers.map(k=>names[k]).join(' → ');
  }
  window.__drawBurger=drawBurger;drawBurger();
- function squirt(k){if((stock[k]||0)<1){say('No '+names[k]+' left!');return}stock[k]--;sauceMarks.push(k);drawBurger();drawUI()}
+ function squirt(k){if((stock[k]||0)<1){say('No '+names[k]+' left!');return}stock[k]--;sauceMarks.push(k);drawBurger();$('inventory').innerHTML=Object.entries(names).map(([key,n])=>'<div class=\"inv\"><span>'+n+'</span><b>'+stock[key]+'</b></div>').join('')}
  let squirtTimer=null;
  [['sauceKetchup','ketchup'],['sauceMayo','mayo']].forEach(([id,k])=>{let b=$(id);const start=e=>{e.preventDefault();squirt(k);squirtTimer=setInterval(()=>squirt(k),330)},stop=()=>{clearInterval(squirtTimer);squirtTimer=null};b.addEventListener('pointerdown',start);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop))});
 }
