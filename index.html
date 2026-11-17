@@ -33,6 +33,19 @@ button:active{transform:translateY(2px);box-shadow:0 1px #9b7536}
 #trayActions button{font-size:10px;padding:7px 8px}
 @media(max-width:800px){.game{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}#touchControls{display:flex}}
 @media(max-width:520px){.side{grid-template-columns:1fr}.side .wide{grid-column:auto}.wrap{padding:7px}.stats span{padding:6px 7px}.logo small{font-size:8px}.panel{padding:11px}}
+
+/* Interactive food stations */
+#burgerBuilder{background:#19171c;border:1px solid #806b58;border-radius:6px;padding:8px;margin-top:8px}
+#burgerCanvas{width:100%;height:auto;display:block;background:#d6c39a;border:2px solid #76583c;touch-action:none}
+#ingredientRack{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.dragIngredient{background:#f2d99e;color:#35271d;border:1px solid #9e7742;padding:7px 8px;font: bold 11px ui-monospace,monospace;cursor:grab;box-shadow:0 2px #805d32}
+.dragIngredient:active{cursor:grabbing}
+#builderHint{font-size:10px;color:#e8d5b5;line-height:1.5;margin:5px 0}
+.sauceRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.sauceRow button{flex:1;min-width:100px}
+#grillGame{background:#19171c;border:1px solid #806b58;padding:9px;border-radius:6px;margin-top:7px}
+#grillCanvas{width:100%;display:block;background:#29272a;border:2px solid #74605a;touch-action:manipulation}
+#grillStatus{font-size:11px;line-height:1.5;color:#f4dcae;margin:6px 0}
 </style></head><body>
 <header><div class="logo">SERVE AT NORTHDONALDS<small>THE PEOPLE'S BURGER SERVICE • EST. 1969-ISH</small></div><div class="stats"><span>₩ <b id="cash">100</b></span><span>⭐ <b id="rep">0</b></span><span>DAY <b id="day">1</b></span><span>⏱ <b id="clock">03:00</b></span></div></header>
 <div class="wrap"><div id="objective">⭐ <b>FIRST SHIFT:</b> Walk to the prep bench, make the ingredients on the order, assemble the burger, then serve it at the window.</div><div class="game"><section class="screen"><canvas id="world" width="960" height="560"></canvas><div class="hint"><span>⌨ WASD / ARROWS MOVE</span><span>🟡 E OR CLICK A STATION</span><span>ESC CLOSES MENU</span></div><div id="touchControls"><div class="dpad"><button class="up" data-key="w">▲</button><button class="left" data-key="a">◀</button><button class="down" data-key="s">▼</button><button class="right" data-key="d">▶</button></div><button class="touchE" id="touchE">USE<br>STATION</button></div></section><aside class="side">
@@ -50,8 +63,8 @@ const $=id=>document.getElementById(id),c=$('world'),ctx=c.getContext('2d');
 const names={bun:'Bun',patty:'Patty',lettuce:'Lettuce',cheese:'Cheese',tomato:'Tomato',pickle:'Pickle',onion:'Onion',bacon:'Bacon',egg:'Egg',fries:'Fries',ketchup:'Ketchup',mustard:'Mustard',mayo:'Mayo',secret:'Secret sauce'};
 const colors={bun:'#d5a653',patty:'#68402d',lettuce:'#6bb34e',cheese:'#f3c83f',tomato:'#d94b3d',pickle:'#4e9a50',onion:'#e4c7d9',bacon:'#b85b45',egg:'#f3e5b0',fries:'#e9b64d',ketchup:'#c63836',mustard:'#e5bd3f',mayo:'#e8dfc4',secret:'#8c5540'};
 const stations=[{id:'prep',name:'PREP BENCH',x:170,y:145,w:180,h:78,desc:'Prepare fresh ingredients.'},{id:'grill',name:'GRILL',x:415,y:100,w:170,h:88,desc:'Cook patties to order.'},{id:'fryer',name:'FRYER',x:665,y:100,w:155,h:88,desc:'Fry crispy portions.'},{id:'sauce',name:'SAUCE BAR',x:735,y:330,w:150,h:80,desc:'Portion sauces.'},{id:'assembly',name:'ASSEMBLY',x:420,y:360,w:205,h:85,desc:'Build the customer burger.'},{id:'window',name:'SERVE WINDOW',x:80,y:350,w:180,h:85,desc:'Hand the finished order to the customer.'}];
-let player={x:490,y:270,speed:3.1,dir:0},stock={},tray={},orders=[],selected=null,cash=100,rep=0,day=1,time=180,served=0,lost=0,perfect=0,active='',started=false,keys={},last=0,spawn=0,toast='',toastUntil=0,modal=false,shiftTimer=null;
-const fresh=()=>{stock={bun:10,patty:0,lettuce:0,cheese:0,tomato:0,pickle:0,onion:0,bacon:0,egg:0,fries:0,ketchup:0,mustard:0,mayo:0,secret:0};tray={}};
+let player={x:490,y:270,speed:3.1,dir:0},stock={},tray={},layers=[],sauceMarks=[],orders=[],selected=null,cash=100,rep=0,day=1,time=180,served=0,lost=0,perfect=0,active='',started=false,keys={},last=0,spawn=0,toast='',toastUntil=0,modal=false,shiftTimer=null;
+const fresh=()=>{layers=[];sauceMarks=[];stock={bun:10,patty:0,lettuce:0,cheese:0,tomato:0,pickle:0,onion:0,bacon:0,egg:0,fries:0,ketchup:0,mustard:0,mayo:0,secret:0};tray={}};
 function log(s){$('log').innerHTML='› '+s+'<br>'+$('log').innerHTML}
 function say(s){toast=s;toastUntil=performance.now()+1800}
 function beep(freq=500){try{let a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.frequency.value=freq;o.connect(g);g.connect(a.destination);g.gain.value=.035;o.start();o.stop(a.currentTime+.07)}catch(e){}}
@@ -73,16 +86,18 @@ document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{let k=b.datase
 if($('clearTray'))$('clearTray').onclick=()=>{for(let[k,v]of Object.entries(tray))stock[k]=(stock[k]||0)+v;tray={};drawUI()};
 let s=stations.find(x=>x.id===active);$('stationTitle').textContent=s?'🛠 '+s.name:'🧑‍🍳 KITCHEN ACTIONS';$('stationText').textContent=s?s.desc+' — press a button below.':'Walk close to a station and press E. Nearby station names appear above your character.';
 let html='';if(active==='prep')html=['bun','lettuce','cheese','tomato','pickle','onion','bacon','egg'].map(k=>'<button class="action" data-make="'+k+'">Prepare '+names[k]+'</button>').join('');
-if(active==='grill')html='<button class="action" id="act-patty">🔥 Cook 1 patty (3.6s)</button>';
+if(active==='grill')html='<div id="grillGame"><canvas id="grillCanvas" width="300" height="112"></canvas><div id="grillStatus">Put a raw patty on the hotplate. Watch the colour and flip it when ready.</div><div class="btns"><button id="putPatty">PUT PATTY ON GRILL</button><button id="flipPatty" disabled>FLIP PATTY</button><button id="collectPatty" disabled>COLLECT PATTY</button></div></div>';
 if(active==='fryer')html='<button class="action" id="act-fries">🍟 Fry 1 portion (4.6s)</button>';
 if(active==='sauce')html=['ketchup','mustard','mayo','secret'].map(k=>'<button class="action" data-make="'+k+'">Portion '+names[k]+'</button>').join('');
-if(active==='assembly')html='<div class="small">Use the + and − buttons under CURRENT TRAY to customise it. Any ingredient can be added or removed.</div>';
+if(active==='assembly')html='<div id="burgerBuilder"><div class="small">DRAG ingredients onto the burger. Drop them where you want each layer.</div><canvas id="burgerCanvas" width="300" height="220"></canvas><div id="builderHint">Drag a layer from the rack onto the burger. Build from bottom to top.</div><div id="ingredientRack"></div><div class="sauceRow"><button id="sauceKetchup">🔴 HOLD TO SQUIRT KETCHUP</button><button id="sauceMayo">⚪ HOLD TO SQUIRT MAYO</button></div><div class="small" id="layerCount"></div></div>';
 if(active==='window')html='<button class="action" id="serve">📦 Serve current tray to first customer</button><div class="small">Orders are served in queue order.</div>';
 $('actions').innerHTML=html;
 document.querySelectorAll('[data-make]').forEach(b=>b.onclick=()=>act(b.dataset.make));
-if($('act-patty'))$('act-patty').onclick=()=>act('patty');if($('act-fries'))$('act-fries').onclick=()=>act('fries');if($('serve'))$('serve').onclick=serve;
+if($('act-fries'))$('act-fries').onclick=()=>act('fries');if($('serve'))$('serve').onclick=serve;
+if(active==='assembly')setupBurgerBuilder();
+if(active==='grill')setupGrillGame();
 }
-function serve(){let o=orders[0];if(!o){say('There is nobody to serve!');return}let keys=new Set([...Object.keys(o.req),...Object.keys(tray)]),miss=0,extra=0;for(let k of keys){let d=(tray[k]||0)-(o.req[k]||0);if(d<0)miss-=d;else extra+=d}let score=Math.max(0,100-miss*17-extra*9),pay=Math.max(2,Math.round(o.pay*score/100));cash+=pay;rep+=score>=95?3:score>=60?1:-2;served++;if(score>=95)perfect++;log((score>=95?'PERFECT ORDER! ':'Order delivered. ')+score+'% accuracy · +₩'+pay);say(score>=95?'PERFECT! +₩'+pay:'Order served · '+score+'% · +₩'+pay);orders.shift();tray={};beep(score>=95?850:370);if(orders.length<4)addOrder();drawUI()}
+function serve(){if(layers.length){tray={};for(const layer of layers)tray[layer]=(tray[layer]||0)+1;for(const m of sauceMarks)tray[m]=(tray[m]||0)+1}let o=orders[0];if(!o){say('There is nobody to serve!');return}let keys=new Set([...Object.keys(o.req),...Object.keys(tray)]),miss=0,extra=0;for(let k of keys){let d=(tray[k]||0)-(o.req[k]||0);if(d<0)miss-=d;else extra+=d}let score=Math.max(0,100-miss*17-extra*9),pay=Math.max(2,Math.round(o.pay*score/100));cash+=pay;rep+=score>=95?3:score>=60?1:-2;served++;if(score>=95)perfect++;log((score>=95?'PERFECT ORDER! ':'Order delivered. ')+score+'% accuracy · +₩'+pay);say(score>=95?'PERFECT! +₩'+pay:'Order served · '+score+'% · +₩'+pay);orders.shift();tray={};layers=[];sauceMarks=[];beep(score>=95?850:370);if(orders.length<4)addOrder();drawUI()}
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
 function text(t,x,y,size=14,color='#fff'){ctx.fillStyle=color;ctx.font='bold '+size+'px monospace';ctx.fillText(t,x,y)}
 function draw(){
@@ -152,6 +167,51 @@ $('restart').onclick=()=>{started=false;modal=true;day=1;time=180;cash=100;rep=s
 c.addEventListener('click',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*c.width/r.width,y=(e.clientY-r.top)*c.height/r.height;for(const st of stations){if(x>=st.x-8&&x<=st.x+st.w+8&&y>=st.y-8&&y<=st.y+st.h+8){openStation(st);return}}});
 $('touchE').onclick=()=>{let st=nearest();if(st)openStation(st);else say('Walk closer to a station first!')};
 document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;const down=e=>{e.preventDefault();keys[k]=true},up=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)});
+
+function setupBurgerBuilder(){
+ const cv=$('burgerCanvas'),g=cv.getContext('2d');
+ const ingredientKeys=['bun','lettuce','cheese','tomato','pickle','onion','bacon','egg','patty'];
+ $('ingredientRack').innerHTML=ingredientKeys.map(k=>'<button class="dragIngredient" draggable="true" data-drag="'+k+'">'+names[k]+' · '+(stock[k]||0)+'</button>').join('');
+ document.querySelectorAll('[data-drag]').forEach(b=>{b.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',b.dataset.drag));b.addEventListener('click',()=>{addLayer(b.dataset.drag)})});
+ cv.addEventListener('dragover',e=>{e.preventDefault();cv.style.outline='3px solid #f4c85c'});
+ cv.addEventListener('dragleave',()=>cv.style.outline='');
+ cv.addEventListener('drop',e=>{e.preventDefault();cv.style.outline='';let k=e.dataTransfer.getData('text/plain');if(k)addLayer(k)});
+ function addLayer(k){if((stock[k]||0)<1){say('No '+names[k]+' ready. Prepare it first.');return}stock[k]--;let r=cv.getBoundingClientRect(),y=eventY;layers.push(k);drawBurger();drawUI(); }
+ let eventY=0;
+ cv.addEventListener('dragover',e=>{let r=cv.getBoundingClientRect();eventY=(e.clientY-r.top)*cv.height/r.height});
+ function drawBurger(){
+  g.clearRect(0,0,300,220);g.fillStyle='#d6c39a';g.fillRect(0,0,300,220);
+  g.fillStyle='#8b7655';g.font='bold 11px monospace';g.fillText('YOUR CUSTOM BURGER',9,15);
+  // bottom bun
+  g.fillStyle='#b97832';g.beginPath();g.ellipse(150,190,91,19,0,0,Math.PI*2);g.fill();
+  const visible=layers.slice(-9);visible.forEach((k,i)=>{let y=170-i*15;let col=colors[k]||'#aaa';g.fillStyle=col;
+   if(k==='bun'){g.beginPath();g.ellipse(150,y,88,18,0,Math.PI,Math.PI*2);g.fill();g.fillRect(62,y,176,12)}
+   else if(k==='lettuce'||k==='cheese'){g.beginPath();g.moveTo(62,y);for(let x=62;x<=238;x+=12)g.lineTo(x,y+Math.sin(x*.2+i)*5);g.lineTo(238,y+7);g.lineTo(62,y+7);g.fill()}
+   else {g.beginPath();g.ellipse(150,y,82,k==='patty'?10:7,0,0,Math.PI*2);g.fill()}
+   g.strokeStyle='#563b29';g.lineWidth=1;g.stroke();
+  });
+  sauceMarks.forEach((k,i)=>{g.fillStyle=k==='ketchup'?'#c52c2b':'#eee6ce';for(let j=0;j<6;j++){let x=95+((i*29+j*23)%110),y=164-((i*11+j*13)%115);g.beginPath();g.arc(x,y,2.8,0,Math.PI*2);g.fill()}});
+  g.fillStyle='#30251c';g.font='10px monospace';g.fillText(layers.length+' layers · '+sauceMarks.length+' sauce squirts',9,210);
+  $('layerCount').textContent='Layers: '+layers.map(k=>names[k]).join(' → ');
+ }
+ window.__drawBurger=drawBurger;drawBurger();
+ function squirt(k){if((stock[k]||0)<1){say('No '+names[k]+' left!');return}stock[k]--;sauceMarks.push(k);drawBurger();drawUI()}
+ let squirtTimer=null;
+ [['sauceKetchup','ketchup'],['sauceMayo','mayo']].forEach(([id,k])=>{let b=$(id);const start=e=>{e.preventDefault();squirt(k);squirtTimer=setInterval(()=>squirt(k),330)},stop=()=>{clearInterval(squirtTimer);squirtTimer=null};b.addEventListener('pointerdown',start);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop))});
+}
+function setupGrillGame(){
+ let cv=$('grillCanvas'),g=cv.getContext('2d'),state='empty',progress=0,flipped=false,interval=null;
+ function paint(){g.fillStyle='#242327';g.fillRect(0,0,300,112);g.fillStyle='#55565a';g.fillRect(22,18,256,76);for(let x=30;x<270;x+=12){g.fillStyle='#777';g.fillRect(x,22,3,68)}
+ if(state!=='empty'){g.fillStyle=state==='cooked'?'#70402b':progress>50?'#9a5337':'#bd7650';g.beginPath();g.ellipse(150,57,53,27,0,0,Math.PI*2);g.fill();g.strokeStyle='#422b23';g.lineWidth=3;for(let i=-2;i<=2;i++){g.beginPath();g.moveTo(120+i*12,40);g.lineTo(130+i*12,73);g.stroke()}}
+ g.fillStyle='#f4d28b';g.font='bold 11px monospace';g.fillText(state==='empty'?'GRILL READY':state==='cooked'?'DONE! COLLECT IT':flipped?'SECOND SIDE: '+Math.round(progress)+'%':'FIRST SIDE: '+Math.round(progress)+'%',12,12)}
+ function status(t){$('grillStatus').textContent=t}
+ function setButtons(){$('putPatty').disabled=state!=='empty'||stock.patty<1;$('flipPatty').disabled=state!=='cooking'||progress<48||flipped;$('collectPatty').disabled=state!=='cooked'}
+ $('putPatty').onclick=()=>{if(!stock.patty){status('You need a raw patty. Prepare one at the prep bench.');return}stock.patty--;state='cooking';progress=0;flipped=false;status('Patty is sizzling! Let the first side cook, then FLIP it.');interval=setInterval(()=>{progress+=5;if(progress>=100){progress=100;clearInterval(interval);state='cooked';status('Perfectly grilled! Collect your patty.')}paint();setButtons()},250);paint();setButtons();drawUI()};
+ $('flipPatty').onclick=()=>{if(progress<48||flipped)return;flipped=true;progress=0;status('Nice flip! Now cook the other side.');paint();setButtons();interval=setInterval(()=>{progress+=5;if(progress>=100){progress=100;clearInterval(interval);state='cooked';status('Perfectly grilled! Collect your patty.')}paint();setButtons()},250)};
+ $('collectPatty').onclick=()=>{if(state!=='cooked')return;stock.patty++;state='empty';progress=0;status('Patty collected and ready for assembly!');paint();setButtons();drawUI()};
+ paint();setButtons();
+}
+
 fresh();drawUI();requestAnimationFrame(draw);requestAnimationFrame(tick);setInterval(()=>{if(!started||modal)return;time--;orders.forEach(o=>o.patience-=.85);let n=orders.filter(o=>o.patience<=0).length;if(n){lost+=n;rep-=2*n;orders=orders.filter(o=>o.patience>0);log(n+' customer(s) left.');say('CUSTOMER WALKOUT!')}if(orders.length<4&&Math.random()<.35)orders.push(order());drawUI();if(time<=0)endShift()},1000);
 })();
 </script></body></html>
